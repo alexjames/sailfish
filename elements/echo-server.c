@@ -6,8 +6,10 @@ This sample server simply echoes onto stdout what it receives on its socket.
 
 #include <stdio.h>
 #include <stdlib.h>
+// For strerror and errno
 #include <string.h>
 #include <errno.h>
+// Socket headers
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -17,7 +19,6 @@ This sample server simply echoes onto stdout what it receives on its socket.
 
 int main(void)
 {
-
     int status;
     int sockfd;
     struct sockaddr_in server;
@@ -68,3 +69,4 @@ int main(void)
 
     return 0;
 }
+
