@@ -1,6 +1,11 @@
 /***
 
-This sample server simply echoes onto stdout what it receives on its socket.
+This sample server simply echoes onto stdout what it receives on its socket, and relays it
+back to the sender. Sending 'exit' closes the program.
+
+Usage:
+Server - a.out
+Client - telnet localhost 8000
 
 ***/
 
@@ -54,11 +59,16 @@ int main(void)
         int addrlen = sizeof(client);
 
         connection = accept(sockfd, (struct sockaddr *) &client, &addrlen);
+
+        // memset buffer to 0 before every read since we're overwriting every time        
+        memset(buffer, 0, sizeof(buffer));
         recv(connection, buffer, SIZE, 0);
+        send(connection, buffer, strlen(buffer), 0);
         printf("%s\n", buffer);
 
-        if (strcmp(buffer, "exit") == 0)
+        if (strncmp(buffer, "exit", 4) == 0)
         {
+            close(connection);
             break;
         }
         close(connection);
