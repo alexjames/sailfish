@@ -3,6 +3,8 @@
 This sample server simply echoes onto stdout what it receives on its socket, and relays it
 back to the sender. Sending 'exit' closes the program.
 
+THIS IS AN IPV4-ONLY VERSION. JUST FOR EDUCATION AND FUN.
+
 Usage:
 Server - a.out
 Client - telnet localhost 8000
@@ -29,6 +31,12 @@ int main(void)
     struct sockaddr_in server;
     char buffer[SIZE];
 
+    // creates the communication endpoint, gives you the descriptor
+    // socket(domain, type, protocol)
+    // domain: AF_INET -> IPV4 Address Family
+    // type: SOCK_STREAM -> connection-based, reliable (TCP)
+    // protocol: 0 (IP)
+
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("Socket error : %s\n", strerror(errno));
@@ -38,15 +46,17 @@ int main(void)
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
-    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_addr.s_addr = INADDR_ANY; //automatically select IP address
 
+    // associate socket with IP and port
     if (bind(sockfd, (struct sockaddr *) &server, sizeof(server)) < 0)
     {
         printf("Bind error : %s\n", strerror(errno));
         exit(errno);
     }
 
-    if (listen(sockfd, 20) < 0)
+    // mark as passive socket for listening in on the port
+    if (listen(sockfd, 1) < 0)
     {
         printf("Listen error : %s\n", strerror(errno));
         exit(errno);
@@ -66,12 +76,11 @@ int main(void)
         send(connection, buffer, strlen(buffer), 0);
         printf("%s\n", buffer);
 
+        close(connection);
         if (strncmp(buffer, "exit", 4) == 0)
         {
-            close(connection);
             break;
         }
-        close(connection);
     }
 
     printf("Exiting program...\n");
