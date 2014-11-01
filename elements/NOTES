@@ -3,3 +3,5 @@ curl -s localhost:8000/[0-50000] > /dev/null
 
 The total number of open TCP connections is theoretically near unlimited. There is no TCP conversation number. A TCP conversation is uniquely identified by the 5-tuple:
 {Protocol, Source IP, Source Port, Destination IP, Destination Port}
+
+Look into serving HTTP request/response codes for file transfer
