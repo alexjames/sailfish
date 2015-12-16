@@ -8,10 +8,66 @@
 #define PORT "8080"
 #define BACKLOG 10
 
+#define SF_GET_MTHD 1
+
+struct sailfish_http_rqst
+{
+    int method;
+    char uri[2048];
+};
+
+
 /* Starting message */
 void start_msg()
 {
     printf("=== Sailfish ===\n\n");
+}
+
+int html_rqst_parser(char *rqst, struct sailfish_http_rqst *sf_str)
+{
+    int rc;
+    char *tok, *stringp = rqst;
+
+    if (sf_str == NULL)
+    {
+        return -1;
+    }
+
+    if (rqst == NULL)
+    {
+        return -1;
+    }
+
+    printf("%s\n", rqst);
+    /* parse HTML status line *
+     * Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF *
+     */
+
+    /* Check method */
+    tok = strsep(&stringp, " ");
+    if (strncmp(tok, "GET", 3) == 0)
+    {
+        /* classic GET method */
+        printf("GET method detected\n");
+
+        /* populate request structure */
+        sf_str->method = SF_GET_MTHD;
+        tok = strsep(&stringp, " ");
+        strncpy(sf_str->uri, tok, stringp - tok);
+        printf("%d %s", sf_str->method, sf_str->uri);
+    }
+    else
+    {
+        /* looks like an unsupported method - 405 Method not allowed */
+    }
+
+    return 0;
+}
+
+
+void request_handler()
+{
+
 }
 
 int main(int argc, char* argv[])
@@ -82,6 +138,7 @@ int main(int argc, char* argv[])
     {
         new_conn = accept(sockfd, &conn_info, &addrlen);
         char client_rqst[10024];
+        struct sailfish_http_rqst new_rqst;
         if (new_conn == -1)
         {
             fprintf(stderr, "accept: %s\n", strerror(errno));
@@ -94,8 +151,10 @@ int main(int argc, char* argv[])
             fprintf(stderr, "send: %s\n", strerror(errno));
             continue;
         }
-        printf("%s\n", client_rqst);
+        client_rqst[rc] = '\0';
+        html_rqst_parser(client_rqst, &new_rqst);
 
+/*
         rc = send(new_conn, "HTTP/1.0 200 OK\n"
 "Content-Length: 46\n"
 "Content-Type: text/html\n\n"
@@ -105,7 +164,7 @@ int main(int argc, char* argv[])
             fprintf(stderr, "send: %s\n", strerror(errno));
             continue;
         }
-
+*/
 
         close(new_conn);
     }
